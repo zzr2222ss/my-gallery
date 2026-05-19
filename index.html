@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>悬浮环绕画廊</title>
+  <title>233</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
@@ -34,7 +34,6 @@
       box-shadow: 0 20px 35px rgba(0,0,0,0.5), 0 0 25px rgba(100,180,255,0.4);
       cursor: pointer;
       transition: box-shadow 0.3s;
-      /* 初始居中定位 */
       transform: translate(-50%, -50%);
     }
     
@@ -58,10 +57,10 @@
       background: #000;
     }
     
-    .video-center iframe {
+    .video-center video {
       width: 100%;
       height: 100%;
-      border: none;
+      object-fit: cover;
     }
 
     @media (max-width: 700px) {
@@ -74,31 +73,29 @@
   <div class="stage">
     <div id="orbitContainer" style="position: absolute; top: 50%; left: 50%; width: 0; height: 0;"></div>
     <div class="video-center">
-  <video src="video.mp4" muted loop autoplay playsinline controls style="width: 100%; height: 100%; object-fit: cover;"></video>
+      <video src="others/video.mp4" muted loop autoplay playsinline controls style="width: 100%; height: 100%; object-fit: cover;"></video>
     </div>
   </div>
 
   <script>
     const images = [
-      "img1.jpeg",
-      "img2.jpeg",
-      "img3.jpeg",
-      "img4.jpeg",
-      "img5.jpeg",
-      "img6.jpeg",
-      "img7.jpeg",
-      "img8.jpeg"
+      "others/img1.jpeg",
+      "others/img2.jpeg",
+      "others/img3.jpeg",
+      "others/img4.jpeg",
+      "others/img5.jpeg",
+      "others/img6.jpeg",
+      "others/img7.jpeg",
+      "others/img8.jpeg"
     ];
 
     const container = document.getElementById('orbitContainer');
     const total = images.length;
     const imageElements = [];
     
-    // 轨道椭圆参数
     const radiusX = 260;
     const radiusY = 160;
     
-    // 创建图片元素
     images.forEach((src, i) => {
       const img = document.createElement('img');
       img.src = src;
@@ -107,33 +104,25 @@
       
       imageElements.push({
         element: img,
-        // 初始角度：均匀分布，从顶部开始
         angle: (i / total) * Math.PI * 2 - Math.PI/2,
-        // 不同的浮动相位
         floatPhase: i * 0.7
       });
     });
     
-    // 公转角度
     let orbitAngle = 0;
-    const orbitSpeed = 0.005; // 旋转速度
+    const orbitSpeed = 0.005;
     
     function animate() {
       orbitAngle += orbitSpeed;
       
       imageElements.forEach((item) => {
         const currentAngle = item.angle + orbitAngle;
-        
-        // 椭圆位置
         const x = Math.cos(currentAngle) * radiusX;
         const y = Math.sin(currentAngle) * radiusY;
-        
-        // 上下浮动效果
         const floatTime = Date.now() / 1000 + item.floatPhase;
         const floatY = Math.sin(floatTime * 1.5) * 12;
         const floatScale = 1 + Math.sin(floatTime * 1.5) * 0.04;
         
-        // 设置位置 + 浮动，始终保持正向（不旋转）
         item.element.style.left = `${x}px`;
         item.element.style.top = `${y}px`;
         item.element.style.transform = `translate(-50%, -50%) translateY(${floatY}px) scale(${floatScale})`;
