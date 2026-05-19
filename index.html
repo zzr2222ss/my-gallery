@@ -25,7 +25,6 @@
       min-height: 500px;
     }
     
-    /* 每个图片独立运动，不再使用统一旋转的容器 */
     .orbit-image {
       position: absolute;
       width: 90px;
@@ -34,15 +33,15 @@
       object-fit: cover;
       box-shadow: 0 20px 35px rgba(0,0,0,0.5), 0 0 25px rgba(100,180,255,0.4);
       cursor: pointer;
-      transition: transform 0.3s, box-shadow 0.3s;
-      /* 保持图片正向，不旋转 */
+      transition: box-shadow 0.3s;
+      /* 初始居中定位 */
       transform: translate(-50%, -50%);
     }
     
     .orbit-image:hover {
-      transform: translate(-50%, -50%) scale(1.2) !important;
       box-shadow: 0 25px 45px rgba(0,160,255,0.7), 0 0 40px #3b82f6;
-      z-index: 20;
+      z-index: 20 !important;
+      filter: brightness(1.1);
     }
     
     .video-center {
@@ -56,13 +55,13 @@
       overflow: hidden;
       box-shadow: 0 30px 50px rgba(0,0,0,0.8), 0 0 60px rgba(70,130,255,0.5);
       z-index: 10;
+      background: #000;
     }
     
-    .video-center video {
+    .video-center iframe {
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      border-radius: 32px;
+      border: none;
     }
 
     @media (max-width: 700px) {
@@ -75,16 +74,16 @@
   <div class="stage">
     <div id="orbitContainer" style="position: absolute; top: 50%; left: 50%; width: 0; height: 0;"></div>
     <div class="video-center">
-<iframe 
-  src="https://player.bilibili.com/player.html?bvid=BV1CULM6IENG&autoplay=1&muted=1&loop=1" 
-  scrolling="no" 
-  border="0" 
-  frameborder="no" 
-  framespacing="0" 
-  allowfullscreen="true" 
-  allow="autoplay" 
-  style="width: 100%; height: 100%; position: absolute; top: 0; left: 0;">
-</iframe>    </div>
+      <iframe 
+        src="https://player.bilibili.com/player.html?bvid=BV1CULM6IENG&autoplay=1&muted=1&loop=1"
+        scrolling="no" 
+        border="0" 
+        frameborder="no" 
+        framespacing="0" 
+        allowfullscreen="true"
+        allow="autoplay">
+      </iframe>
+    </div>
   </div>
 
   <script>
@@ -103,46 +102,46 @@
     const total = images.length;
     const imageElements = [];
     
-    // 轨道参数
+    // 轨道椭圆参数
     const radiusX = 260;
     const radiusY = 160;
-    const centerX = 0;
-    const centerY = 0;
     
     // 创建图片元素
     images.forEach((src, i) => {
       const img = document.createElement('img');
       img.src = src;
       img.className = 'orbit-image';
-      img.style.animationDelay = `${i * 0.7}s`;
       container.appendChild(img);
+      
       imageElements.push({
         element: img,
+        // 初始角度：均匀分布，从顶部开始
         angle: (i / total) * Math.PI * 2 - Math.PI/2,
-        floatOffset: i * 0.7
+        // 不同的浮动相位
+        floatPhase: i * 0.7
       });
     });
     
-    // 动画循环：手动更新每个图片的位置，保持图片正向
+    // 公转角度
     let orbitAngle = 0;
-    const orbitSpeed = 0.002; // 旋转速度
+    const orbitSpeed = 0.005; // 旋转速度
     
     function animate() {
       orbitAngle += orbitSpeed;
       
-      imageElements.forEach((item, i) => {
+      imageElements.forEach((item) => {
         const currentAngle = item.angle + orbitAngle;
         
-        // 计算椭圆位置
+        // 椭圆位置
         const x = Math.cos(currentAngle) * radiusX;
         const y = Math.sin(currentAngle) * radiusY;
         
-        // 悬浮动画
-        const floatTime = Date.now() / 1000 + item.floatOffset;
+        // 上下浮动效果
+        const floatTime = Date.now() / 1000 + item.floatPhase;
         const floatY = Math.sin(floatTime * 1.5) * 12;
         const floatScale = 1 + Math.sin(floatTime * 1.5) * 0.04;
         
-        // 设置位置，保持图片正向（不旋转）
+        // 设置位置 + 浮动，始终保持正向（不旋转）
         item.element.style.left = `${x}px`;
         item.element.style.top = `${y}px`;
         item.element.style.transform = `translate(-50%, -50%) translateY(${floatY}px) scale(${floatScale})`;
@@ -152,10 +151,6 @@
     }
     
     animate();
-    
-    // 视频自动播放
-    const video = document.querySelector('video');
-    video.play().catch(() => {});
   </script>
 </body>
 </html>
